@@ -12,73 +12,85 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text("Demo App"),
-        centerTitle: true,
-        titleTextStyle: TextStyle(
-            color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500),
-      ),
-      body: Column(
-        children: [
-          Padding(padding: EdgeInsets.all(10)),
-          Center(
-              child: Column(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Colors.red,
+          title: Text("Demo App"),
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('images/kt3.jpg'),
+                fit: BoxFit.fill,
+                colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.5), BlendMode.dstATop)),
+          ),
+          child: Stack(
             children: [
-              Container(
-                child: Image(
-                  image: AssetImage('images/IITJ.jpg'),
-                  height: 120,
-                ),
+              Column(
+                children: [
+                  Padding(padding: EdgeInsets.all(15)),
+                  Center(
+                      child: Column(
+                    children: [
+                      Image(
+                        image: AssetImage('images/Logo.png'),
+                        height: 200,
+                      )
+                    ],
+                  ))
+                ],
               ),
-              Padding(padding: EdgeInsets.only(top: 20)),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      width: 140,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CreateProfile()),
-                          );
-                        },
-                        child: Text("Show Profiles"),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[400]),
-                      ),
-                    ),
-
-                    Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-
-                    SizedBox(
-                      height: 40,
-                      width: 140,
-                      child: ElevatedButton(
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 40,
+                        width: 140,
+                        child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CreateProfile()),
-                          );
-                          }, 
-                          child: Text("Create Profiles"),
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CreateProfile()),
+                            );
+                          },
+                          child: Text("Show Profiles"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[400]),
-                          ),
-                          
-                    ),
-                    // ElevatedButton(onPressed: (){}, child: Text("Create Profile")),
-                  ],
+                              backgroundColor: Colors.black45),
+                        ),
+                      ),
+                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
+                      SizedBox(
+                        height: 40,
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CreateProfile()),
+                            );
+                          },
+                          child: Text("Create Profile"),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black45),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )
+              ),
             ],
-          ))
-        ],
-      ),
-    );
+          ),
+        ));
   }
 }
