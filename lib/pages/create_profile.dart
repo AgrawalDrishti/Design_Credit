@@ -14,10 +14,12 @@ Future<String> createFolder(String folderName) async {
   await Permission.storage.request();
  }
  if ((await dir.exists())) {
+   print(dir.path);
   return dir.path;
  } else {
   dir.create();
- return dir.path;
+  print(dir.path);
+  return dir.path;
  }
 
 }

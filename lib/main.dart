@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 
-void main() async {
-
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  print('Package Name: ${packageInfo.packageName}');
-
-  WidgetsFlutterBinding.ensureInitialized();
-   Map<Permission, PermissionStatus> statuses = await [
-   Permission.storage,
- ].request();
+void main(){
   runApp(const MyApp());
 }
 

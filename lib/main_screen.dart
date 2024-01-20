@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:design_credit/pages/create_profile.dart';
+import 'package:design_credit/pages/audio_player.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -60,10 +61,10 @@ class _MainScreenState extends State<MainScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => CreateProfile()),
+                                  builder: (context) => AudioPlayerPage()),
                             );
                           },
-                          child: Text("Show Profiles", style: TextStyle(color: Colors.white, fontSize: 13),),
+                          child: Text("Start", style: TextStyle(color: Colors.white, fontSize: 13),),
 
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black45),
