@@ -68,3 +68,14 @@ flutter {
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 }
+
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith("kotlin-stdlib")) {
+                details.useVersion("1.8.0")
+            }
+        }
+    }
+}

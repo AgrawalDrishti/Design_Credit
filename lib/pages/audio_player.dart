@@ -2,6 +2,10 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:io';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PositionData{
   const PositionData(
@@ -14,6 +18,23 @@ class PositionData{
   final Duration bufferedPosition;
   final Duration duration;
 }
+
+Future<File> getImageFileFromAssets(String path) async {
+  final byteData = await rootBundle.load('audio/$path');
+
+  final file = File('${(await getTemporaryDirectory()).path}/$path');
+  await file.writeAsBytes(byteData.buffer
+      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+  return file;
+}
+
+Future<void> shareAsset(String path) async {
+  final imageFile = await getImageFileFromAssets(path);
+  String localPath = imageFile.path;
+  await Share.shareFiles([localPath], text: 'Check out this image!');
+}
+
 class AudioPlayerPage extends StatefulWidget {
   const AudioPlayerPage({super.key});
 
@@ -40,7 +61,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setAsset('audio/128-Chura Liya Hai Tumne Jo Dil Ko - Yaadon Ki Baaraat 128 Kbps.mp3');
+    _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
 
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
@@ -76,7 +97,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                 SizedBox(
                   height: 40,
                   width: 100,
-                  child: ElevatedButton(onPressed: (){}, child: Text("Share")) ,
+                  child: ElevatedButton(onPressed: () async {
+
+                    shareAsset('song.mp3');
+
+                  }, child: Text("Share")) ,
                 ),
               ],
             ),
