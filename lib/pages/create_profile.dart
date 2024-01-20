@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'dart:io';
 
-Future<String> createFolder(String folderName) async {
+Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
  final dir = Directory((Platform.isAndroid
     ? await getExternalStorageDirectory()
     : await getApplicationSupportDirectory())!
@@ -17,6 +17,17 @@ Future<String> createFolder(String folderName) async {
   return dir.path;
  } else {
   dir.create();
+ 
+
+  final file = File('${dir.path}/profile.json');
+  final profileData = {
+    'name': name,
+    'email': emailId,
+    'gender': gender,
+    'fieldA': fieldA,
+    'logs': []
+  };
+  file.writeAsStringSync(jsonEncode(profileData));
  return dir.path;
  }
 
@@ -97,7 +108,8 @@ class _CreateProfileState extends State<CreateProfile> {
               onPressed: () async {
                 if(formKey.currentState!.validate()){
                   String folderName = nameController.text;
-                  String folderPath = await createFolder(folderName);
+                  String folderPath = await createFolder(folderName, nameController.text, emailIdController.text, genderController.text, fieldAController.text);
+
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Created")));
                 }
               },
