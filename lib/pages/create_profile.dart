@@ -14,6 +14,7 @@ Future<String> createFolder(String folderName, String name, String emailId , Str
   await Permission.storage.request();
  }
  if ((await dir.exists())) {
+   print(dir.path);
   return dir.path;
  } else {
   dir.create();
