@@ -3,8 +3,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'dart:io';
+import '/main_screen.dart';
 
 Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
+
+  print("Entered Function");
  final dir = Directory((Platform.isAndroid
     ? await getExternalStorageDirectory()
     : await getApplicationSupportDirectory())!
@@ -13,6 +16,8 @@ Future<String> createFolder(String folderName, String name, String emailId , Str
  if (!status.isGranted) {
   await Permission.storage.request();
  }
+
+  print(dir.path);
  if ((await dir.exists())) {
    print(dir.path);
   return dir.path;
@@ -26,7 +31,6 @@ Future<String> createFolder(String folderName, String name, String emailId , Str
     'email': emailId,
     'gender': gender,
     'fieldA': fieldA,
-    'logs': []
   };
   file.writeAsStringSync(jsonEncode(profileData));
  return dir.path;
@@ -112,6 +116,11 @@ class _CreateProfileState extends State<CreateProfile> {
                   String folderPath = await createFolder(folderName, nameController.text, emailIdController.text, genderController.text, fieldAController.text);
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Created")));
+
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => MainScreen()),
+                  // );
                 }
               },
               child: Text("Create Profile"),
