@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:design_credit/pages/create_profile.dart';
 import 'package:design_credit/pages/audio_player.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:design_credit/pages/navbar.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -60,13 +62,81 @@ class _MainScreenState extends State<MainScreen> {
           } else {
             return Scaffold(
                 resizeToAvoidBottomInset: false,
-                // appBar: AppBar(
-                //   backgroundColor: Colors.black87,
-                //   title: Text("Demo App"),
-                //   centerTitle: true,
-                //   titleTextStyle: TextStyle(
-                //       color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
-                // ),
+                extendBodyBehindAppBar: true,
+                appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0.0,
+                  // title: Text("Demo App"),
+                  // centerTitle: true,
+                  // titleTextStyle: TextStyle(
+                  //     color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+                ),
+                drawer: Drawer(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      const DrawerHeader(
+                        decoration: BoxDecoration(
+                          color:Colors.blue,
+                        ),
+                        child: Text("Meditation App for AIIMS Rishikesh"),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.person),
+                        title: Text('Profile Options'),
+                        onTap: () {
+                          Navigator.pop(context);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    CreateProfile()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.share),
+                        title: Text('Share Data'),
+                        onTap: () {
+                          // Navigator.pushNamed(context, '/audio_player');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Delete Data'),
+                        onTap: () {
+                          // Navigator.pushNamed(context, '/main_screen');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.code),
+                        title: Text('Test Button'),
+                        onTap: () {
+                          showDialog(context: context, builder: (context){
+                            return AlertDialog(
+                              title: Text("Enter Password"),
+                              content: TextField(
+                                onChanged: (value){
+
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "Enter Nurse Password"
+                                ),
+                              ),
+                              actions: [
+                                TextButton(onPressed: (){
+                                  Navigator.pop(context);
+                                }, child: Text("Submit"),)
+                              ],
+                            );
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                
                 body: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
