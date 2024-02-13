@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'dart:io';
 import '/main_screen.dart';
+import 'package:design_credit/pages/audio_player.dart';
 
 Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
 
@@ -116,16 +117,17 @@ class _CreateProfileState extends State<CreateProfile> {
                   String folderPath = await createFolder(folderName, nameController.text, emailIdController.text, genderController.text, fieldAController.text);
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Created")));
-
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => MainScreen()),
-                  // );
+                  Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AudioPlayerPage(selectedFolder: folderName)),
+                );
                 }
               },
               child: Text("Create Profile"),
-            )
-          ]))
+            ),
+          ],
+          
+          )
+          )
         )
     );
   }

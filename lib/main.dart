@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'pages/splashScreen.dart';
 
 void main(){
   runApp(const MyApp());
@@ -19,7 +19,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
+      home: SplashScreen(),
     );
   }
 }

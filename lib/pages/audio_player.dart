@@ -46,7 +46,7 @@ class PositionData {
 // }
 
 // writing into logs.json
-Future<void> writeToLogFile(String folderName, Map<String, dynamic> jsonMap) async {
+Future<void> writeToLogFile(String? folderName, Map<String, dynamic> jsonMap) async {
   print("writing logs");
   final dir = Directory((Platform.isAndroid
               ? await getExternalStorageDirectory()
@@ -62,8 +62,9 @@ Future<void> writeToLogFile(String folderName, Map<String, dynamic> jsonMap) asy
   print("log written");
 }
 
-Future<void> clearLogFile(String folderName) async {
+Future<void> clearLogFile(String? folderName) async {
  print("clearing logs");
+
  final dir = Directory((Platform.isAndroid
       ? await getExternalStorageDirectory()
       : await getApplicationSupportDirectory())!
@@ -90,7 +91,7 @@ Future<File> getImageFileFromAssets(String path) async {
   return file;
 }
 
-Future<void> shareJson(String folderName) async{
+Future<void> shareJson(String? folderName) async{
   final dir = Directory((Platform.isAndroid
       ? await getExternalStorageDirectory()
       : await getApplicationSupportDirectory())!
@@ -108,9 +109,9 @@ Future<void> shareAsset(String path) async {
 
 class AudioPlayerPage extends StatefulWidget {
 
-  final String selectedFolder;
+  final String? selectedFolder;
   
-  const AudioPlayerPage({Key? key, required this.selectedFolder}) : super(key: key);
+  AudioPlayerPage({Key? key, required this.selectedFolder}) : super(key: key);
 
   @override
   State<AudioPlayerPage> createState() => _AudioPlayerPageState(selectedFolder);
@@ -118,7 +119,7 @@ class AudioPlayerPage extends StatefulWidget {
 
 class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
-  final String selectedFolder;
+  final String? selectedFolder;
 
   _AudioPlayerPageState(this.selectedFolder);
 
@@ -229,7 +230,7 @@ class Controls extends StatelessWidget {
   });
 
   final AudioPlayer audioPlayer;
-  final String selectedFolder;
+  final String? selectedFolder;
 
   Future<void> logAction(String action) async {
     final currentTime = DateTime.now();
