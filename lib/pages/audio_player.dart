@@ -160,10 +160,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0.0,
-          // title: Text("Demo App"),
-          // centerTitle: true,
-          // titleTextStyle: TextStyle(
-          //     color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
         ),
         drawer: Drawer(
           child: ListView(
@@ -191,14 +187,20 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                 leading: Icon(Icons.share),
                 title: Text('Share Data'),
                 onTap: () {
-                  // Navigator.pushNamed(context, '/audio_player');
+                  Navigator.pop(context);
+
+                  shareJson(selectedFolder);
                 },
               ),
               ListTile(
                 leading: Icon(Icons.delete),
                 title: Text('Delete Data'),
                 onTap: () {
-                  // Navigator.pushNamed(context, '/main_screen');
+                  Navigator.pop(context);
+
+                  clearLogFile(selectedFolder);
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Logs Cleared 💀")));
                 },
               ),
               ListTile(
@@ -234,34 +236,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
           children: [
             Padding(
               padding: EdgeInsets.all(20),
-            ),
-            Container(
-              child: Row(
-                children: [
-                  Padding(padding: EdgeInsets.only(left: 20)),
-                  SizedBox(
-                    height: 40,
-                    width: 100,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          clearLogFile(selectedFolder);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Logs Cleared 💀")));
-                        },
-                        child: Text("Clear")),
-                  ),
-                  Padding(padding: EdgeInsets.only(left: 120)),
-                  SizedBox(
-                    height: 40,
-                    width: 100,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          shareJson(selectedFolder);
-                        },
-                        child: Text("Share")),
-                  ),
-                ],
-              ),
             ),
             SizedBox(
               height: 500,
