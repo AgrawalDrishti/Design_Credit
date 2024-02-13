@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 
+import 'package:design_credit/pages/create_profile.dart';
+
 class PositionData {
   const PositionData(
     this.position,
@@ -46,7 +48,8 @@ class PositionData {
 // }
 
 // writing into logs.json
-Future<void> writeToLogFile(String folderName, Map<String, dynamic> jsonMap) async {
+Future<void> writeToLogFile(
+    String? folderName, Map<String, dynamic> jsonMap) async {
   print("writing logs");
   final dir = Directory((Platform.isAndroid
               ? await getExternalStorageDirectory()
@@ -62,23 +65,23 @@ Future<void> writeToLogFile(String folderName, Map<String, dynamic> jsonMap) asy
   print("log written");
 }
 
-Future<void> clearLogFile(String folderName) async {
- print("clearing logs");
- final dir = Directory((Platform.isAndroid
-      ? await getExternalStorageDirectory()
-      : await getApplicationSupportDirectory())!
-      .path +
-      '/$folderName');
- print(dir.path);
- if (!(await dir.exists())) {
-    dir.create();
- }
- final file = File('${dir.path}/logs.json');
- await file.delete();
- file.create();
- print("logs cleared");
-}
+Future<void> clearLogFile(String? folderName) async {
+  print("clearing logs");
 
+  final dir = Directory((Platform.isAndroid
+              ? await getExternalStorageDirectory()
+              : await getApplicationSupportDirectory())!
+          .path +
+      '/$folderName');
+  print(dir.path);
+  if (!(await dir.exists())) {
+    dir.create();
+  }
+  final file = File('${dir.path}/logs.json');
+  await file.delete();
+  file.create();
+  print("logs cleared");
+}
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('audio/$path');
@@ -90,14 +93,13 @@ Future<File> getImageFileFromAssets(String path) async {
   return file;
 }
 
-Future<void> shareJson(String folderName) async{
+Future<void> shareJson(String? folderName) async {
   final dir = Directory((Platform.isAndroid
-      ? await getExternalStorageDirectory()
-      : await getApplicationSupportDirectory())!
-      .path +
+              ? await getExternalStorageDirectory()
+              : await getApplicationSupportDirectory())!
+          .path +
       '/$folderName/logs.json');
   await Share.shareFiles([dir.path], text: 'Check out the logs file!');
-
 }
 
 Future<void> shareAsset(String path) async {
@@ -107,18 +109,16 @@ Future<void> shareAsset(String path) async {
 }
 
 class AudioPlayerPage extends StatefulWidget {
+  final String? selectedFolder;
 
-  final String selectedFolder;
-  
-  const AudioPlayerPage({Key? key, required this.selectedFolder}) : super(key: key);
+  AudioPlayerPage({Key? key, required this.selectedFolder}) : super(key: key);
 
   @override
   State<AudioPlayerPage> createState() => _AudioPlayerPageState(selectedFolder);
 }
 
 class _AudioPlayerPageState extends State<AudioPlayerPage> {
-
-  final String selectedFolder;
+  final String? selectedFolder;
 
   _AudioPlayerPageState(this.selectedFolder);
 
@@ -138,10 +138,9 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   @override
   void initState() {
-    super.initState();      
-             
-    _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
+    super.initState();
 
+    _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
 
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
@@ -157,67 +156,145 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(20),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          // title: Text("Demo App"),
+          // centerTitle: true,
+          // titleTextStyle: TextStyle(
+          //     color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
         ),
-        Container(
-          child: Row(
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: [
-              Padding(padding: EdgeInsets.only(left: 20)),
-              SizedBox(
-                height: 40,
-                width: 100,
-                child: ElevatedButton(
-                    onPressed: () {
-                      clearLogFile(selectedFolder);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Logs Cleared 💀")));
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text("Meditation App for AIIMS Rishikesh"),
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Profile Options'),
+                onTap: () {
+                  Navigator.pop(context);
 
-                    },
-                    child: Text("Clear")),
-              ),
-              Padding(padding: EdgeInsets.only(left: 120)),
-              SizedBox(
-                height: 40,
-                width: 100,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      shareJson(selectedFolder);
-                    },
-                    child: Text("Share")),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 500,
-        ),
-        Container(
-          padding: const EdgeInsets.all(20.0),
-          height: 200,
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              StreamBuilder<PositionData>(
-                stream: _positionDataStream,
-                builder: (context, snapshot) {
-                  final positionData = snapshot.data;
-                  return ProgressBar(
-                    progress: positionData?.position ?? Duration.zero,
-                    buffered: positionData?.bufferedPosition ?? Duration.zero,
-                    total: positionData?.duration ?? Duration.zero,
-                    onSeek: _audioPlayer.seek,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreateProfile()),
                   );
                 },
               ),
-              Controls(audioPlayer: _audioPlayer, selectedFolder: selectedFolder,)
+              ListTile(
+                leading: Icon(Icons.share),
+                title: Text('Share Data'),
+                onTap: () {
+                  // Navigator.pushNamed(context, '/audio_player');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Delete Data'),
+                onTap: () {
+                  // Navigator.pushNamed(context, '/main_screen');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.code),
+                title: Text('Test Button'),
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                },
+              ),
             ],
           ),
         ),
-      ],
-    ));
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20),
+            ),
+            Container(
+              child: Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 20)),
+                  SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          clearLogFile(selectedFolder);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Logs Cleared 💀")));
+                        },
+                        child: Text("Clear")),
+                  ),
+                  Padding(padding: EdgeInsets.only(left: 120)),
+                  SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          shareJson(selectedFolder);
+                        },
+                        child: Text("Share")),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 500,
+            ),
+            Container(
+              padding: const EdgeInsets.all(20.0),
+              height: 200,
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StreamBuilder<PositionData>(
+                    stream: _positionDataStream,
+                    builder: (context, snapshot) {
+                      final positionData = snapshot.data;
+                      return ProgressBar(
+                        progress: positionData?.position ?? Duration.zero,
+                        buffered:
+                            positionData?.bufferedPosition ?? Duration.zero,
+                        total: positionData?.duration ?? Duration.zero,
+                        onSeek: _audioPlayer.seek,
+                      );
+                    },
+                  ),
+                  Controls(
+                    audioPlayer: _audioPlayer,
+                    selectedFolder: selectedFolder,
+                  )
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 }
 
@@ -229,7 +306,7 @@ class Controls extends StatelessWidget {
   });
 
   final AudioPlayer audioPlayer;
-  final String selectedFolder;
+  final String? selectedFolder;
 
   Future<void> logAction(String action) async {
     final currentTime = DateTime.now();
@@ -237,9 +314,9 @@ class Controls extends StatelessWidget {
     Map<String, dynamic> jsonMap = {
       'action': action,
       'time': currentTime.toString(),
-      'position': currentPosition.toString()};
-    await writeToLogFile(selectedFolder ,  jsonMap
-    );
+      'position': currentPosition.toString()
+    };
+    await writeToLogFile(selectedFolder, jsonMap);
   }
 
   @override
