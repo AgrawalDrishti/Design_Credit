@@ -6,38 +6,100 @@ import 'dart:io';
 import '/main_screen.dart';
 import 'package:design_credit/pages/audio_player.dart';
 
-Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
+// Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
+//   print("Entered Function");
+//  final dir = Directory((Platform.isAndroid
+//     ? await getExternalStorageDirectory()
+//     : await getApplicationSupportDirectory())!
+//     .path + '/$folderName');
+//  var status = await Permission.storage.status;
+//  if (!status.isGranted) {
+//   await Permission.storage.request();
+//  }
+//
+//   print(dir.path);
+//  if ((await dir.exists())) {
+//    print(dir.path);
+//   return dir.path;
+//  } else {
+//   dir.create();
+//
+//   final file = File('${dir.path}/profile.json');
+//   final profileData = {
+//     'name': name,
+//     'email': emailId,
+//     'gender': gender,
+//     'fieldA': fieldA,
+//   };
+//   file.writeAsStringSync(jsonEncode(profileData));
+//  return dir.path;
+//  }
+//
+// }
 
-  print("Entered Function");
- final dir = Directory((Platform.isAndroid
-    ? await getExternalStorageDirectory()
-    : await getApplicationSupportDirectory())!
-    .path + '/$folderName');
- var status = await Permission.storage.status;
- if (!status.isGranted) {
-  await Permission.storage.request();
- }
+Future<String> createFolder(
+    String folderName, String name, String emailId, String gender, String fieldA) async {
+  // 1. Check if we can get broad external storage access (Android 11+)
+  bool hasBroadAccess = await _manageExternalStoragePermission();
 
-  print(dir.path);
- if ((await dir.exists())) {
-   print(dir.path);
-  return dir.path;
- } else {
-  dir.create();
- 
+  Directory? dir;
 
-  final file = File('${dir.path}/profile.json');
-  final profileData = {
-    'name': name,
-    'email': emailId,
-    'gender': gender,
-    'fieldA': fieldA,
-  };
-  file.writeAsStringSync(jsonEncode(profileData));
- return dir.path;
- }
+  if (hasBroadAccess) {
+    // Ideal if broad access is granted
+    dir = await getExternalStorageDirectory();
+  } else {
+    // No broad access? Use app-specific storage
+    dir = await getApplicationDocumentsDirectory();
+  }
 
+  // Create your subfolder within the chosen directory
+  final subDir = Directory('${dir!.path}/$folderName');
+  if (await subDir.exists()) {
+    // File writing logic if the subfolder already exists
+    final file = File('${subDir.path}/profile.json');
+    final profileData = {
+      'name': name,
+      'email': emailId,
+      'gender': gender,
+      'fieldA': fieldA,
+    };
+    file.writeAsStringSync(jsonEncode(profileData));
+
+    return subDir.path;
+  } else {
+    await subDir.create();
+
+    // File writing logic after creating the subfolder
+    final file = File('${subDir.path}/profile.json');
+    final profileData = {
+      'name': name,
+      'email': emailId,
+      'gender': gender,
+      'fieldA': fieldA,
+    };
+    file.writeAsStringSync(jsonEncode(profileData));
+
+    return subDir.path;
+  }
 }
+
+
+// Helper function for requesting storage permissions
+Future<bool> _manageExternalStoragePermission() async {
+  if (Platform.isAndroid) {
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      return true;
+    } else {
+      return await Permission.storage.request().isGranted;
+    }
+  } else {
+    // Permissions aren't a concern on other platforms
+    return true;
+  }
+}
+
+
+
 
 
 class CreateProfile extends StatefulWidget {
