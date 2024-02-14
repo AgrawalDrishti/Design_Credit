@@ -1,4 +1,5 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:design_credit/pages/profile_options.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
@@ -8,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
+import 'package:lottie/lottie.dart';
+
 
 import 'package:design_credit/pages/create_profile.dart';
 
@@ -123,6 +126,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   _AudioPlayerPageState(this.selectedFolder);
 
   late AudioPlayer _audioPlayer;
+  bool _isPlaying = false;
 
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -142,6 +146,12 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
     _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
 
+    _audioPlayer.playingStream.listen((playing) {
+      setState(() {
+        _isPlaying = playing;
+      });
+     });
+
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
     _audioPlayer.durationStream;
@@ -155,37 +165,65 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
+    String user = selectedFolder ?? "Username";
     return Scaffold(
-        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.grey[850],
+        // extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0.0,
         ),
         drawer: Drawer(
+          backgroundColor: Colors.grey[200],
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text("Meditation App for AIIMS Rishikesh"),
-              ),
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('images/bg.jpeg'), fit: BoxFit.cover),
+                    color: Color.fromARGB(255, 92, 92, 92),
+                  ),
+                  child: Column(
+                    children: [
+                      Image(
+                        image: AssetImage('images/logoaims.png'),
+                        height: 100,
+                        width: 100,
+                      ),
+                      Container(
+                          color: Color.fromARGB(31, 89, 85, 85),
+                          child: Text(
+                            "Meditation App for AIIMS Rishikesh",
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 241, 241, 241),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                                fontSize: 14),
+                          )),
+                    ],
+                  )),
               ListTile(
                 leading: Icon(Icons.person),
-                title: Text('Profile Options'),
+                title: Text(
+                  'Profile Options',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onTap: () {
                   Navigator.pop(context);
 
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CreateProfile()),
+                    MaterialPageRoute(builder: (context) => ProfileOptions()),
                   );
                 },
               ),
               ListTile(
                 leading: Icon(Icons.share),
-                title: Text('Share Data'),
+                title: Text(
+                  'Share Data',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onTap: () {
                   Navigator.pop(context);
 
@@ -194,7 +232,10 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               ),
               ListTile(
                 leading: Icon(Icons.delete),
-                title: Text('Delete Data'),
+                title: Text(
+                  'Delete Data',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onTap: () {
                   Navigator.pop(context);
 
@@ -234,11 +275,44 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         ),
         body: Column(
           children: [
+            
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Hello,",
+                      // textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 50,
+                          color: Colors.white),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      user,
+                      // textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 60,
+                          color: Color(0xff58c977)),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(
-              height: 500,
+            Lottie.asset(
+              'jsons/animation.json',
+              animate: _isPlaying,
+              height: 300,
+              repeat: true,
             ),
             Container(
               padding: const EdgeInsets.all(20.0),
@@ -252,6 +326,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     builder: (context, snapshot) {
                       final positionData = snapshot.data;
                       return ProgressBar(
+                        timeLabelTextStyle:
+                            TextStyle(color: Colors.white, fontSize: 14),
+                        baseBarColor: Color.fromARGB(134, 88, 201, 118),
+                        thumbColor: Colors.white,
+                        progressBarColor: Color(0xff58c977),
                         progress: positionData?.position ?? Duration.zero,
                         buffered:
                             positionData?.bufferedPosition ?? Duration.zero,
@@ -308,7 +387,7 @@ class Controls extends StatelessWidget {
             width: 85,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                color: Color(0xFF2196f3)),
+                color: Color(0xFF58c9b0)),
             child: IconButton(
               onPressed: () {
                 audioPlayer.play();
@@ -325,7 +404,7 @@ class Controls extends StatelessWidget {
             width: 85,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                color: Color(0xFF2196f3)),
+                color: Color(0xFF58c9b0)),
             child: IconButton(
               onPressed: () {
                 audioPlayer.pause();
