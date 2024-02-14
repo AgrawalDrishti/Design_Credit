@@ -11,7 +11,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 
-
 import 'package:design_credit/pages/create_profile.dart';
 
 class PositionData {
@@ -150,7 +149,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       setState(() {
         _isPlaying = playing;
       });
-     });
+    });
 
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
@@ -166,6 +165,18 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   @override
   Widget build(BuildContext context) {
     String user = selectedFolder ?? "Username";
+    final TextEditingController shareJSONController = TextEditingController();
+    final _shareFormKey = GlobalKey<FormState>();
+    bool _shareErrorMessage = false;
+
+    final TextEditingController _clearJSONController = TextEditingController();
+    final _clearFormKey = GlobalKey<FormState>();
+    bool _clearErrorMessage = false;
+
+    final TextEditingController createProfileController = TextEditingController();
+    final _createFormKey = GlobalKey<FormState>();
+    bool _createErrorMessage = false;
+
     return Scaffold(
         backgroundColor: Colors.grey[850],
         // extendBodyBehindAppBar: true,
@@ -204,85 +215,254 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     ],
                   )),
               ListTile(
-                leading: Icon(Icons.person),
-                title: Text(
-                  'Profile Options',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
+                  leading: Icon(Icons.change_circle_sharp),
+                  title: Text(
+                    'Change Profile',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Enter Password"),
+                            content: TextField(
+                              onChanged: (value) {},
+                              decoration: InputDecoration(
+                                  hintText: "Enter Nurse Password"),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Submit"),
+                              )
+                            ],
+                          );
+                        });
+                  }
+                  // onTap: () {
+                  //   Navigator.pop(context);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfileOptions()),
-                  );
-                },
-              ),
+                  //   Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(builder: (context) => ProfileOptions()),
+                  //   );
+                  // },
+                  ),
               ListTile(
-                leading: Icon(Icons.share),
-                title: Text(
-                  'Share Data',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
+                  leading: Icon(Icons.person),
+                  title: Text(
+                    'Create Profile',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Enter Password"),
+                            content: Form(
+                              key: _createFormKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextFormField(
+                                    controller: createProfileController,
+                                    obscureText: true,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Please enter password";
+                                      } else if (value != '1234') {
+                                        return "Incorrect Password";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Visibility(
+                                    visible: _createErrorMessage,
+                                    child: Text(
+                                      "Incorrect Password !",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  createProfileController.clear();
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    if (_createFormKey.currentState!
+                                        .validate()) {
+                                      Navigator.pop(context);
+                                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> CreateProfile() ));
+                                      shareJSONController.clear();
+                                    } else {
+                                      setState(() {
+                                        _createErrorMessage = true;
+                                      });
 
-                  shareJson(selectedFolder);
-                },
-              ),
+                                      createProfileController.clear();
+                                    }
+                                  },
+                                  child: Text("Submit"))
+                            ],
+                          );
+                        });
+                  }
+                  ),
               ListTile(
-                leading: Icon(Icons.delete),
-                title: Text(
-                  'Delete Data',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
+                  leading: Icon(Icons.share),
+                  title: Text(
+                    'Share Data',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Enter Password"),
+                            content: Form(
+                              key: _shareFormKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextFormField(
+                                    controller: shareJSONController,
+                                    obscureText: true,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Please enter password";
+                                      } else if (value != '1234') {
+                                        return "Incorrect Password";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Visibility(
+                                    visible: _shareErrorMessage,
+                                    child: Text(
+                                      "Incorrect Password !",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  shareJSONController.clear();
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    if (_shareFormKey.currentState!
+                                        .validate()) {
+                                      shareJson(selectedFolder);
+                                      Navigator.pop(context);
+                                      shareJSONController.clear();
+                                    } else {
+                                      setState(() {
+                                        _shareErrorMessage = true;
+                                      });
 
-                  clearLogFile(selectedFolder);
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Logs Cleared 💀")));
-                },
-              ),
+                                      shareJSONController.clear();
+                                    }
+                                  },
+                                  child: Text("Submit"))
+                            ],
+                          );
+                        });
+                  }),
               ListTile(
-                leading: Icon(Icons.code),
-                title: Text('Test Button'),
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Enter Password"),
-                          content: TextField(
-                            onChanged: (value) {},
-                            decoration: InputDecoration(
-                                hintText: "Enter Nurse Password"),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text("Submit"),
-                            )
-                          ],
-                        );
-                      });
-                },
-              ),
+                  leading: Icon(Icons.delete),
+                  title: Text(
+                    'Clear Data',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Enter Password"),
+                            content: Form(
+                              key: _clearFormKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextFormField(
+                                    controller: _clearJSONController,
+                                    obscureText: true,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Please enter password";
+                                      } else if (value != '1234') {
+                                        return "Incorrect Password";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Visibility(
+                                    visible: _clearErrorMessage,
+                                    child: Text(
+                                      "Incorrect Password !",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  _clearJSONController.clear();
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    if (_clearFormKey.currentState!
+                                        .validate()) {
+                                      clearLogFile(selectedFolder);
+                                      Navigator.pop(context);
+                                      _clearJSONController.clear();
+                                    } else {
+                                      setState(() {
+                                        _clearErrorMessage = true;
+                                      });
+
+                                      _clearJSONController.clear();
+                                    }
+                                  },
+                                  child: Text("Submit"))
+                            ],
+                          );
+                        });
+                  }),
             ],
           ),
         ),
         body: Column(
           children: [
-            
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
-                
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(

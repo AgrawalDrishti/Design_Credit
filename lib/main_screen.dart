@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:design_credit/pages/profile_options.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -71,72 +72,211 @@ class _MainScreenState extends State<MainScreen> {
                   // titleTextStyle: TextStyle(
                   //     color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
                 ),
-                drawer: Drawer(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      const DrawerHeader(
-                        decoration: BoxDecoration(
-                          color:Colors.blue,
-                        ),
-                        child: Text("Meditation App for AIIMS Rishikesh"),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.person),
-                        title: Text('Profile Options'),
-                        onTap: () {
-                          Navigator.pop(context);
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CreateProfile()),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.share),
-                        title: Text('Share Data'),
-                        onTap: () {
-                          // Navigator.pushNamed(context, '/audio_player');
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.delete),
-                        title: Text('Delete Data'),
-                        onTap: () {
-                          // Navigator.pushNamed(context, '/main_screen');
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.code),
-                        title: Text('Test Button'),
-                        onTap: () {
-                          showDialog(context: context, builder: (context){
-                            return AlertDialog(
-                              title: Text("Enter Password"),
-                              content: TextField(
-                                onChanged: (value){
-
-                                },
-                                decoration: InputDecoration(
-                                  hintText: "Enter Nurse Password"
-                                ),
-                              ),
-                              actions: [
-                                TextButton(onPressed: (){
-                                  Navigator.pop(context);
-                                }, child: Text("Submit"),)
-                              ],
-                            );
-                          });
-                        },
-                      ),
-                    ],
+                drawer:
+                Drawer(
+          backgroundColor: Colors.grey[200],
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('images/bg.jpeg'), fit: BoxFit.cover),
+                    color: Color.fromARGB(255, 92, 92, 92),
                   ),
+                  child: Column(
+                    children: [
+                      Image(
+                        image: AssetImage('images/logoaims.png'),
+                        height: 100,
+                        width: 100,
+                      ),
+                      Container(
+                          color: Color.fromARGB(31, 89, 85, 85),
+                          child: Text(
+                            "Meditation App for AIIMS Rishikesh",
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 241, 241, 241),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                                fontSize: 14),
+                          )),
+                    ],
+                  )),
+              ListTile(
+                leading: Icon(Icons.change_circle_sharp),
+                title: Text(
+                  'Change Profile',
+                  style: TextStyle(color: Colors.black),
                 ),
-                
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                }
+                // onTap: () {
+                //   Navigator.pop(context);
+
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (context) => ProfileOptions()),
+                //   );
+                // },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text(
+                  'Create Profile',
+                  style: TextStyle(color: Colors.black),
+                ),
+                // onTap: () {
+                //   Navigator.pop(context);
+
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (context) => ProfileOptions()),
+                //   );
+                // },
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                }
+              ),
+              ListTile(
+                leading: Icon(Icons.share),
+                title: Text(
+                  'Share Data',
+                  style: TextStyle(color: Colors.black),
+                ),
+                // onTap: () {
+                //   Navigator.pop(context);
+
+                //   shareJson(_selectedFolder);
+                // },
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                }
+              ),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text(
+                  'Delete Data',
+                  style: TextStyle(color: Colors.black),
+                ),
+                // onTap: () {
+                //   Navigator.pop(context);
+
+                //   clearLogFile(_selectedFolder);
+                //   ScaffoldMessenger.of(context)
+                //       .showSnackBar(SnackBar(content: Text("Logs Cleared 💀")));
+                // },
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                }
+              ),
+              ListTile(
+                leading: Icon(Icons.code),
+                title: Text('Test Button'),
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Enter Password"),
+                          content: TextField(
+                            onChanged: (value) {},
+                            decoration: InputDecoration(
+                                hintText: "Enter Nurse Password"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Submit"),
+                            )
+                          ],
+                        );
+                      });
+                },
+              ),
+            ],
+          ),
+        ),
+        
                 body: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
