@@ -35,20 +35,20 @@ class _MainScreenState extends State<MainScreen> {
         ? await getExternalStorageDirectory()
         : await getApplicationSupportDirectory();
     Directory _directory = Directory(directoryPath!.path);
-    print(_directory);
+    // print(_directory);
     List<String> _folderNames = _directory
         .listSync()
         .map((entity) => path.basename(entity.path))
         .toList();
     _folderNamesStreamController.add(_folderNames);
-    print(_folderNames);
+    // print(_folderNames);
 
     if(_folderNames.length == 0){
       _selectedFolder = 'CreateNewProfile';
     }else{
       _selectedFolder = _folderNames[0];
     }
-    print(_selectedFolder);
+    // print(_selectedFolder);
   }
 
   @override

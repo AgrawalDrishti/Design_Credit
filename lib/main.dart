@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'main_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'pages/splashScreen.dart';
 
-void main(){
+void main() async{
   runApp(const MyApp());
 }
 

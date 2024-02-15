@@ -2,6 +2,7 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:design_credit/pages/profile_options.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:io';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
@@ -10,8 +11,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-
+import 'package:path/path.dart' as path;
 import 'package:design_credit/pages/create_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PositionData {
   const PositionData(
@@ -24,30 +26,6 @@ class PositionData {
   final Duration bufferedPosition;
   final Duration duration;
 }
-
-// Future<String> writeLog(String folderName) async {
-//   print("function called");
-//   final dir = Directory((Platform.isAndroid
-//               ? await getExternalStorageDirectory()
-//               : await getApplicationSupportDirectory())!
-//           .path +
-//       '/$folderName');
-//   print(dir.path);
-//   var status = await Permission.storage.status;
-//   print(status);
-//   if (!status.isGranted) {
-//     await Permission.storage.request();
-//   }
-//   print(await dir.exists() ? "yes" : "no");
-//   if (!(await dir.exists())) {
-//     dir.create();
-//     print("directly created");
-//   }
-//   // creating logs file
-//   final file = File('${dir.path}/logs.json');
-//   file.create();
-//   return "function called";
-// }
 
 // writing into logs.json
 Future<void> writeToLogFile(
@@ -120,9 +98,27 @@ class AudioPlayerPage extends StatefulWidget {
 }
 
 class _AudioPlayerPageState extends State<AudioPlayerPage> {
-  final String? selectedFolder;
+  late String? selectedFolder;
+  String? selectedUser;
 
-  _AudioPlayerPageState(this.selectedFolder);
+  _AudioPlayerPageState(this.selectedFolder) {
+    _saveSelectedFolder();
+  }
+
+  Future<void> _saveSelectedFolder() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('selectedFolder', selectedFolder!);
+  }
+
+  final _playlist = ConcatenatingAudioSource(children: [
+    AudioSource.uri(Uri.parse('audio/song.,p3'),
+        tag: MediaItem(
+          id: '0',
+          title: 'Meditation Track',
+          artist: 'AIIMS Rishikesh',
+          artUri: Uri.parse('images/logoaims.png'),
+        ))
+  ]);
 
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
@@ -139,9 +135,34 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         ),
       );
 
+  late Future<List<String>> _folderNamesFuture;
+
+  Future<List<String>> _fetchFolderNames() async {
+    final directoryPath = Platform.isAndroid
+        ? await getExternalStorageDirectory()
+        : await getApplicationSupportDirectory();
+    Directory _directory = Directory(directoryPath!.path);
+    print(_directory);
+    List<String> _folderNames = _directory
+        .listSync()
+        .map((entity) => path.basename(entity.path))
+        .toList();
+    // _folderNamesStreamController.add(_folderNames);
+    print(_folderNames);
+    return _folderNames;
+  }
+
+  final selectedUserNotifier = ValueNotifier<String?>(null);
   @override
   void initState() {
     super.initState();
+
+    _loadSelectedFolder();
+    _folderNamesFuture = _fetchFolderNames();
+
+    selectedUserNotifier.addListener(() {
+      setState(() {});
+    });
 
     _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
 
@@ -154,11 +175,22 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
     _audioPlayer.durationStream;
+
+    print("The obtained foldernames are");
+    print(_folderNamesFuture);
+  }
+
+  Future<void> _loadSelectedFolder() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedFolder = prefs.getString('selectedFolder');
+    });
   }
 
   @override
   void dispose() {
     _audioPlayer.dispose();
+    selectedUserNotifier.dispose();
     super.dispose();
   }
 
@@ -173,9 +205,15 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final _clearFormKey = GlobalKey<FormState>();
     bool _clearErrorMessage = false;
 
-    final TextEditingController createProfileController = TextEditingController();
+    final TextEditingController createProfileController =
+        TextEditingController();
     final _createFormKey = GlobalKey<FormState>();
     bool _createErrorMessage = false;
+
+    final TextEditingController changeProfileController =
+        TextEditingController();
+    final _changeFormKey = GlobalKey<FormState>();
+    bool _changeProfileErrorMessage = false;
 
     return Scaffold(
         backgroundColor: Colors.grey[850],
@@ -215,42 +253,136 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     ],
                   )),
               ListTile(
-                  leading: Icon(Icons.change_circle_sharp),
-                  title: Text(
-                    'Change Profile',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Enter Password"),
-                            content: TextField(
-                              onChanged: (value) {},
-                              decoration: InputDecoration(
-                                  hintText: "Enter Nurse Password"),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Submit"),
-                              )
-                            ],
-                          );
-                        });
-                  }
-                  // onTap: () {
-                  //   Navigator.pop(context);
-
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => ProfileOptions()),
-                  //   );
-                  // },
-                  ),
+                leading: Icon(Icons.change_circle_sharp),
+                title: Text(
+                  'Change Profile',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Enter Password"),
+                        content: Form(
+                          key: _changeFormKey,
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Please enter password";
+                              } else if (value != '1234') {
+                                return "Incorrect Password";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_changeFormKey.currentState!.validate()) {
+                                Navigator.pop(context);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return ValueListenableBuilder<String?>(
+                                        valueListenable: selectedUserNotifier,
+                                        builder:
+                                            (context, selectedUser, child) {
+                                          return FutureBuilder<List<String>>(
+                                            future: _folderNamesFuture,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                if (snapshot.hasError) {
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                }
+                                                return AlertDialog(
+                                                  title: Text('Select User'),
+                                                  content:
+                                                      SingleChildScrollView(
+                                                    child: ListBody(
+                                                      children: snapshot.data!
+                                                          .map<Widget>(
+                                                              (String value) {
+                                                        return RadioListTile<
+                                                            String>(
+                                                          title: Text(value),
+                                                          value: value,
+                                                          groupValue:
+                                                              selectedUserNotifier
+                                                                  .value,
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              selectedUserNotifier
+                                                                      .value =
+                                                                  newValue;
+                                                            });
+                                                          },
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text("Cancel"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        print(selectedUser);
+                                                        if (selectedUser !=
+                                                            null) {
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  AudioPlayerPage(
+                                                                selectedFolder:
+                                                                    selectedUser!,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                      child: Text("Submit"),
+                                                    ),
+                                                  ],
+                                                );
+                                              } else {
+                                                return CircularProgressIndicator();
+                                              }
+                                            },
+                                          );
+                                        });
+                                  },
+                                );
+                              }
+                            },
+                            child: Text("Submit"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
               ListTile(
                   leading: Icon(Icons.person),
                   title: Text(
@@ -303,8 +435,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                     if (_createFormKey.currentState!
                                         .validate()) {
                                       Navigator.pop(context);
-                                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> CreateProfile() ));
-                                      shareJSONController.clear();
+                                      Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CreateProfile()));
+                                      createProfileController.clear();
                                     } else {
                                       setState(() {
                                         _createErrorMessage = true;
@@ -317,8 +452,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                             ],
                           );
                         });
-                  }
-                  ),
+                  }),
               ListTile(
                   leading: Icon(Icons.share),
                   title: Text(
@@ -372,6 +506,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                         .validate()) {
                                       shareJson(selectedFolder);
                                       Navigator.pop(context);
+                                      // _showChangeUser();
                                       shareJSONController.clear();
                                     } else {
                                       setState(() {
