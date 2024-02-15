@@ -4,7 +4,12 @@ import 'main_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'pages/splashScreen.dart';
 
-void main() async{
+Future<void> main() async{
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   runApp(const MyApp());
 }
 

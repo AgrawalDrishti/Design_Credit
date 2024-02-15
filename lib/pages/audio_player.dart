@@ -111,12 +111,12 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   }
 
   final _playlist = ConcatenatingAudioSource(children: [
-    AudioSource.uri(Uri.parse('audio/song.,p3'),
+    AudioSource.uri(Uri.parse('asset:audio/song.mp3'),
         tag: MediaItem(
           id: '0',
           title: 'Meditation Track',
           artist: 'AIIMS Rishikesh',
-          artUri: Uri.parse('images/logoaims.png'),
+          artUri: Uri.parse('asset:images/aiims-art.png'),
         ))
   ]);
 
@@ -164,7 +164,9 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       setState(() {});
     });
 
-    _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
+    // _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
+    _audioPlayer = AudioPlayer();
+    _init();
 
     _audioPlayer.playingStream.listen((playing) {
       setState(() {
@@ -175,9 +177,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
     _audioPlayer.durationStream;
-
-    print("The obtained foldernames are");
-    print(_folderNamesFuture);
   }
 
   Future<void> _loadSelectedFolder() async {
@@ -187,6 +186,10 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     });
   }
 
+  Future<void> _init() async {
+    await _audioPlayer.setLoopMode(LoopMode.all);
+    await _audioPlayer.setAudioSource(_playlist);
+  }
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -636,6 +639,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
                   StreamBuilder<PositionData>(
                     stream: _positionDataStream,
                     builder: (context, snapshot) {
