@@ -1,5 +1,4 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:design_credit/pages/profile_options.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -190,6 +189,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     await _audioPlayer.setLoopMode(LoopMode.all);
     await _audioPlayer.setAudioSource(_playlist);
   }
+
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -245,13 +245,16 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       ),
                       Container(
                           color: Color.fromARGB(31, 89, 85, 85),
-                          child: Text(
-                            "Meditation App for AIIMS Rishikesh",
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 241, 241, 241),
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                                fontSize: 14),
+                          child: MediaQuery(
+                            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                            child: Text(
+                              "Meditation App for AIIMS Rishikesh",
+                              style: TextStyle(
+                                  color: const Color.fromARGB(255, 241, 241, 241),
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                  fontSize: 14),
+                            ),
                           )),
                     ],
                   )),
@@ -270,6 +273,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                         content: Form(
                           key: _changeFormKey,
                           child: TextFormField(
+                            obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Please enter password";
@@ -594,78 +598,85 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             ],
           ),
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Hello,",
-                      // textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 50,
-                          color: Colors.white),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MediaQuery(
+                        data:MediaQuery.of(context).copyWith(textScaleFactor: 1) ,
+                        child: Text(
+                          "Hello,",
+                          // textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 50,
+                              color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      user,
-                      // textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 60,
-                          color: Color(0xff58c977)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MediaQuery(
+                        data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+                        child: Text(
+                          user,
+                          // textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 60,
+                              color: Color(0xff58c977)),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Lottie.asset(
-              'jsons/animation.json',
-              animate: _isPlaying,
-              height: 300,
-              repeat: true,
-            ),
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              height: 200,
-              width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  StreamBuilder<PositionData>(
-                    stream: _positionDataStream,
-                    builder: (context, snapshot) {
-                      final positionData = snapshot.data;
-                      return ProgressBar(
-                        timeLabelTextStyle:
-                            TextStyle(color: Colors.white, fontSize: 14),
-                        baseBarColor: Color.fromARGB(134, 88, 201, 118),
-                        thumbColor: Colors.white,
-                        progressBarColor: Color(0xff58c977),
-                        progress: positionData?.position ?? Duration.zero,
-                        buffered:
-                            positionData?.bufferedPosition ?? Duration.zero,
-                        total: positionData?.duration ?? Duration.zero,
-                        onSeek: _audioPlayer.seek,
-                      );
-                    },
-                  ),
-                  Controls(
-                    audioPlayer: _audioPlayer,
-                    selectedFolder: selectedFolder,
-                  )
-                ],
+              Lottie.asset(
+                'jsons/animation.json',
+                animate: _isPlaying,
+                height: 300,
+                repeat: true,
               ),
-            ),
-          ],
+              Container(
+                padding: const EdgeInsets.all(20.0),
+                height: 200,
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StreamBuilder<PositionData>(
+                      stream: _positionDataStream,
+                      builder: (context, snapshot) {
+                        final positionData = snapshot.data;
+                        return ProgressBar(
+                          timeLabelTextStyle:
+                              TextStyle(color: Colors.white, fontSize: 14),
+                          baseBarColor: Color.fromARGB(134, 88, 201, 118),
+                          thumbColor: Colors.white,
+                          progressBarColor: Color(0xff58c977),
+                          progress: positionData?.position ?? Duration.zero,
+                          buffered:
+                              positionData?.bufferedPosition ?? Duration.zero,
+                          total: positionData?.duration ?? Duration.zero,
+                          onSeek: _audioPlayer.seek,
+                        );
+                      },
+                    ),
+                    Controls(
+                      audioPlayer: _audioPlayer,
+                      selectedFolder: selectedFolder,
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ));
   }
 }

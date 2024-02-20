@@ -4,7 +4,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 import 'dart:io';
-import '/main_screen.dart';
 import 'package:design_credit/pages/audio_player.dart';
 
 // Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
@@ -277,7 +276,7 @@ class _CreateProfileState extends State<CreateProfile> {
                                   );
                                 }
                               },
-                              child: Text("Create Profile"),
+                              child: Text("Create Profile" ,textAlign: TextAlign.center , style: TextStyle(fontSize: 14),),
                             ),
                           ),
                         ],

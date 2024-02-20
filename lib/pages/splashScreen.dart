@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:design_credit/main_screen.dart';
-import 'package:design_credit/pages/profile_options.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:design_credit/pages/create_profile.dart';
