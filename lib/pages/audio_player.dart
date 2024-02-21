@@ -13,6 +13,7 @@ import 'package:lottie/lottie.dart';
 import 'package:path/path.dart' as path;
 import 'package:design_credit/pages/create_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:csv/csv.dart';
 
 class PositionData {
   const PositionData(
@@ -26,9 +27,8 @@ class PositionData {
   final Duration duration;
 }
 
-// writing into logs.json
-Future<void> writeToLogFile(
-    String? folderName, Map<String, dynamic> jsonMap) async {
+// writing into logs.csv
+Future<void> writeToLogFile(String? folderName, String csvRow) async {
   print("writing logs");
   final dir = Directory((Platform.isAndroid
               ? await getExternalStorageDirectory()
@@ -39,8 +39,15 @@ Future<void> writeToLogFile(
   if (!(await dir.exists())) {
     dir.create();
   }
-  final file = File('${dir.path}/logs.json');
-  await file.writeAsString('\n' + json.encode(jsonMap), mode: FileMode.append);
+  final file = File('${dir.path}/logs.csv');
+
+  // Check if the file is empty to write the header
+  if (await file.lengthSync() == 0) {
+    await file.writeAsString('action,time,position\n'); // Write the header
+  }
+
+  // Write the CSV row
+  await file.writeAsString('\n' + csvRow, mode: FileMode.append);
   print("log written");
 }
 
@@ -56,10 +63,19 @@ Future<void> clearLogFile(String? folderName) async {
   if (!(await dir.exists())) {
     dir.create();
   }
-  final file = File('${dir.path}/logs.json');
+  final file = File('${dir.path}/logs.csv');
   await file.delete();
   file.create();
   print("logs cleared");
+}
+
+Future<void> shareCsv(String? folderName) async {
+  final dir = Directory((Platform.isAndroid
+              ? await getExternalStorageDirectory()
+              : await getApplicationSupportDirectory())!
+          .path +
+      '/$folderName/logs.csv');
+  await Share.shareFiles([dir.path], text: 'Check out the logs file!');
 }
 
 Future<File> getImageFileFromAssets(String path) async {
@@ -70,15 +86,6 @@ Future<File> getImageFileFromAssets(String path) async {
       .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
 
   return file;
-}
-
-Future<void> shareJson(String? folderName) async {
-  final dir = Directory((Platform.isAndroid
-              ? await getExternalStorageDirectory()
-              : await getApplicationSupportDirectory())!
-          .path +
-      '/$folderName/logs.json');
-  await Share.shareFiles([dir.path], text: 'Check out the logs file!');
 }
 
 Future<void> shareAsset(String path) async {
@@ -218,6 +225,25 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final _changeFormKey = GlobalKey<FormState>();
     bool _changeProfileErrorMessage = false;
 
+    Future<void> logSeekAction(Duration newPosition) async {
+      final currentTime = DateTime.now();
+      final audioDuration = _audioPlayer.duration ?? Duration.zero;
+
+      // Create a CSV row with the log data
+      List<dynamic> row = [
+        'seek',
+        currentTime.toString(),
+        newPosition.toString(),
+        audioDuration.toString()
+      ];
+
+      // Convert the row to a CSV string
+      String csvRow = const ListToCsvConverter().convert([row]);
+
+      // Write the CSV string to the log file
+      await writeToLogFile(selectedFolder, csvRow);
+    }
+
     return Scaffold(
         backgroundColor: Colors.grey[850],
         // extendBodyBehindAppBar: true,
@@ -246,11 +272,13 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       Container(
                           color: Color.fromARGB(31, 89, 85, 85),
                           child: MediaQuery(
-                            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                            data: MediaQuery.of(context)
+                                .copyWith(textScaleFactor: 1.0),
                             child: Text(
                               "Meditation App for AIIMS Rishikesh",
                               style: TextStyle(
-                                  color: const Color.fromARGB(255, 241, 241, 241),
+                                  color:
+                                      const Color.fromARGB(255, 241, 241, 241),
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
                                   fontSize: 14),
@@ -511,7 +539,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                   onPressed: () {
                                     if (_shareFormKey.currentState!
                                         .validate()) {
-                                      shareJson(selectedFolder);
+                                      // shareJson(selectedFolder);
+                                      shareCsv(selectedFolder);
                                       Navigator.pop(context);
                                       // _showChangeUser();
                                       shareJSONController.clear();
@@ -609,7 +638,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: MediaQuery(
-                        data:MediaQuery.of(context).copyWith(textScaleFactor: 1) ,
+                        data:
+                            MediaQuery.of(context).copyWith(textScaleFactor: 1),
                         child: Text(
                           "Hello,",
                           // textAlign: TextAlign.left,
@@ -623,7 +653,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: MediaQuery(
-                        data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+                        data:
+                            MediaQuery.of(context).copyWith(textScaleFactor: 1),
                         child: Text(
                           user,
                           // textAlign: TextAlign.left,
@@ -655,17 +686,19 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       builder: (context, snapshot) {
                         final positionData = snapshot.data;
                         return ProgressBar(
-                          timeLabelTextStyle:
-                              TextStyle(color: Colors.white, fontSize: 14),
-                          baseBarColor: Color.fromARGB(134, 88, 201, 118),
-                          thumbColor: Colors.white,
-                          progressBarColor: Color(0xff58c977),
-                          progress: positionData?.position ?? Duration.zero,
-                          buffered:
-                              positionData?.bufferedPosition ?? Duration.zero,
-                          total: positionData?.duration ?? Duration.zero,
-                          onSeek: _audioPlayer.seek,
-                        );
+                            timeLabelTextStyle:
+                                TextStyle(color: Colors.white, fontSize: 14),
+                            baseBarColor: Color.fromARGB(134, 88, 201, 118),
+                            thumbColor: Colors.white,
+                            progressBarColor: Color(0xff58c977),
+                            progress: positionData?.position ?? Duration.zero,
+                            buffered:
+                                positionData?.bufferedPosition ?? Duration.zero,
+                            total: positionData?.duration ?? Duration.zero,
+                            onSeek: (duration) {
+                              _audioPlayer.seek(duration);
+                              logSeekAction(duration);
+                            });
                       },
                     ),
                     Controls(
@@ -694,12 +727,19 @@ class Controls extends StatelessWidget {
   Future<void> logAction(String action) async {
     final currentTime = DateTime.now();
     final currentPosition = audioPlayer.position;
-    Map<String, dynamic> jsonMap = {
-      'action': action,
-      'time': currentTime.toString(),
-      'position': currentPosition.toString()
-    };
-    await writeToLogFile(selectedFolder, jsonMap);
+
+    // Create a CSV row with the log data
+    List<dynamic> row = [
+      action,
+      currentTime.toString(),
+      currentPosition.toString()
+    ];
+
+    // Convert the row to a CSV string
+    String csvRow = const ListToCsvConverter().convert([row]);
+
+    // Write the CSV string to the log file
+    await writeToLogFile(selectedFolder, csvRow);
   }
 
   @override
