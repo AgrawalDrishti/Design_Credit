@@ -1,5 +1,12 @@
+import 'dart:ui';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
@@ -153,7 +160,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         .listSync()
         .map((entity) => path.basename(entity.path))
         .toList();
-    // _folderNamesStreamController.add(_folderNames);
     print(_folderNames);
     return _folderNames;
   }
@@ -170,7 +176,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       setState(() {});
     });
 
-    // _audioPlayer = AudioPlayer()..setAsset('audio/song.mp3');
     _audioPlayer = AudioPlayer();
     _init();
 
@@ -207,23 +212,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   @override
   Widget build(BuildContext context) {
     String user = selectedFolder ?? "Username";
-    final TextEditingController shareJSONController = TextEditingController();
-    final _shareFormKey = GlobalKey<FormState>();
-    bool _shareErrorMessage = false;
 
-    final TextEditingController _clearJSONController = TextEditingController();
-    final _clearFormKey = GlobalKey<FormState>();
-    bool _clearErrorMessage = false;
-
-    final TextEditingController createProfileController =
-        TextEditingController();
-    final _createFormKey = GlobalKey<FormState>();
-    bool _createErrorMessage = false;
-
-    final TextEditingController changeProfileController =
-        TextEditingController();
-    final _changeFormKey = GlobalKey<FormState>();
-    bool _changeProfileErrorMessage = false;
+    
 
     Future<void> logSeekAction(Duration newPosition) async {
       final currentTime = DateTime.now();
@@ -244,387 +234,216 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       await writeToLogFile(selectedFolder, csvRow);
     }
 
+    final GlobalKey<FormState> _firstFormKey = GlobalKey<FormState>();
+    final TextEditingController firstController = TextEditingController();
+    bool _firstErrorMessage = false;
+
+    void _showSelectionDialog() {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: Text(
+                "Select Task ",
+                textAlign: TextAlign.center,
+              ),
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top:10 ,bottom: 10,left: 20),
+                        child: Text(
+                          "Profile Options....",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton.icon(
+                            onPressed: () {
+                              print("change profile pressed.");
+                            },
+                            icon: Column(
+                              children: [
+                                Icon(
+                                  Icons.change_circle_sharp,
+                                  size:
+                                      MediaQuery.of(context).size.height * 0.05,
+                                  color: Color(0xff060683),
+                                ),
+                                Text(
+                                  "Change",
+                                  style: TextStyle(color: Color(0xff830606)),
+                                ),
+                              ],
+                            ),
+                            label: Text("")),
+                        TextButton.icon(
+                            onPressed: () {
+                              print("create profile pressed.");
+                            },
+                            icon: Column(
+                              children: [
+                                Icon(
+                                  Icons.person_add_alt_1_sharp,
+                                  size:
+                                      MediaQuery.of(context).size.height * 0.05,
+                                  color: Color(0xff060683),
+                                ),
+                                Text(
+                                  "Create",
+                                  style: TextStyle(color: Color(0xff830606)),
+                                )
+                              ],
+                            ),
+                            label: Text("")),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top:10 ,bottom: 10,left: 20),
+                        child: Text(
+                          "Data Options....",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton.icon(
+                            onPressed: () {
+                              print("share profile pressed.");
+                            },
+                            icon: Column(
+                              children: [
+                                Icon(Icons.share_sharp,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.05,
+                                    color: Color(0xff060683)),
+                                Text(
+                                  "Share",
+                                  style: TextStyle(color: Color(0xff830606)),
+                                )
+                              ],
+                            ),
+                            label: Text("")),
+                        TextButton.icon(
+                            onPressed: () {
+                              print("Delete data pressed.");
+                            },
+                            icon: Column(
+                              children: [
+                                Icon(
+                                  Icons.delete_sharp,
+                                  size:
+                                      MediaQuery.of(context).size.height * 0.05,
+                                  color: Color(0xff060683),
+                                ),
+                                Text("Delete",
+                                    style: TextStyle(color: Color(0xff830606)))
+                              ],
+                            ),
+                            label: Text("")),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            );
+          });
+    }
+
+    ;
+
+    void _showPasswordDialog() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Enter Password"),
+            content: Form(
+              key: _firstFormKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: firstController,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter password";
+                      } else if (value != '1234') {
+                        return "Incorrect Password";
+                      }
+                      return null;
+                    },
+                  ),
+                  Visibility(
+                    visible: _firstErrorMessage,
+                    child: Text(
+                      "Incorrect Password !",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  firstController.clear();
+                  Navigator.pop(context);
+                },
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_firstFormKey.currentState!.validate()) {
+                    Navigator.pop(context);
+                    _showSelectionDialog();
+                  } else {
+                    setState(() {
+                      _firstErrorMessage = true;
+                    });
+                    firstController.clear();
+                  }
+                },
+                child: Text("Submit"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
         backgroundColor: Colors.grey[850],
         // extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.grey[850],
           elevation: 0.0,
-        ),
-        drawer: Drawer(
-          backgroundColor: Colors.grey[200],
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage('images/bg.jpeg'), fit: BoxFit.cover),
-                    color: Color.fromARGB(255, 92, 92, 92),
-                  ),
-                  child: Column(
-                    children: [
-                      Image(
-                        image: AssetImage('images/logoaims.png'),
-                        height: 100,
-                        width: 100,
-                      ),
-                      Container(
-                          color: Color.fromARGB(31, 89, 85, 85),
-                          child: MediaQuery(
-                            data: MediaQuery.of(context)
-                                .copyWith(textScaleFactor: 1.0),
-                            child: Text(
-                              "Meditation App for AIIMS Rishikesh",
-                              style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 241, 241, 241),
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1,
-                                  fontSize: 14),
-                            ),
-                          )),
-                    ],
-                  )),
-              ListTile(
-                leading: Icon(Icons.change_circle_sharp),
-                title: Text(
-                  'Change Profile',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Enter Password"),
-                        content: Form(
-                          key: _changeFormKey,
-                          child: TextFormField(
-                            obscureText: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter password";
-                              } else if (value != '1234') {
-                                return "Incorrect Password";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("Cancel"),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_changeFormKey.currentState!.validate()) {
-                                Navigator.pop(context);
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return ValueListenableBuilder<String?>(
-                                        valueListenable: selectedUserNotifier,
-                                        builder:
-                                            (context, selectedUser, child) {
-                                          return FutureBuilder<List<String>>(
-                                            future: _folderNamesFuture,
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.done) {
-                                                if (snapshot.hasError) {
-                                                  return Text(
-                                                      'Error: ${snapshot.error}');
-                                                }
-                                                return AlertDialog(
-                                                  title: Text('Select User'),
-                                                  content:
-                                                      SingleChildScrollView(
-                                                    child: ListBody(
-                                                      children: snapshot.data!
-                                                          .map<Widget>(
-                                                              (String value) {
-                                                        return RadioListTile<
-                                                            String>(
-                                                          title: Text(value),
-                                                          value: value,
-                                                          groupValue:
-                                                              selectedUserNotifier
-                                                                  .value,
-                                                          onChanged: (String?
-                                                              newValue) {
-                                                            setState(() {
-                                                              selectedUserNotifier
-                                                                      .value =
-                                                                  newValue;
-                                                            });
-                                                          },
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text("Cancel"),
-                                                    ),
-                                                    ElevatedButton(
-                                                      onPressed: () {
-                                                        print(selectedUser);
-                                                        if (selectedUser !=
-                                                            null) {
-                                                          Navigator.pop(
-                                                              context);
-                                                          Navigator.pop(
-                                                              context);
-                                                          Navigator.pop(
-                                                              context);
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  AudioPlayerPage(
-                                                                selectedFolder:
-                                                                    selectedUser!,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                      child: Text("Submit"),
-                                                    ),
-                                                  ],
-                                                );
-                                              } else {
-                                                return CircularProgressIndicator();
-                                              }
-                                            },
-                                          );
-                                        });
-                                  },
-                                );
-                              }
-                            },
-                            child: Text("Submit"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
+          toolbarHeight: 70,
+          title: GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Image.asset(
+                'images/logoaims.png',
+                height: 60,
+                width: 60,
               ),
-              ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text(
-                    'Create Profile',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Enter Password"),
-                            content: Form(
-                              key: _createFormKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextFormField(
-                                    controller: createProfileController,
-                                    obscureText: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Please enter password";
-                                      } else if (value != '1234') {
-                                        return "Incorrect Password";
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  Visibility(
-                                    visible: _createErrorMessage,
-                                    child: Text(
-                                      "Incorrect Password !",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  createProfileController.clear();
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Cancel"),
-                              ),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    if (_createFormKey.currentState!
-                                        .validate()) {
-                                      Navigator.pop(context);
-                                      Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CreateProfile()));
-                                      createProfileController.clear();
-                                    } else {
-                                      setState(() {
-                                        _createErrorMessage = true;
-                                      });
-
-                                      createProfileController.clear();
-                                    }
-                                  },
-                                  child: Text("Submit"))
-                            ],
-                          );
-                        });
-                  }),
-              ListTile(
-                  leading: Icon(Icons.share),
-                  title: Text(
-                    'Share Data',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Enter Password"),
-                            content: Form(
-                              key: _shareFormKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextFormField(
-                                    controller: shareJSONController,
-                                    obscureText: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Please enter password";
-                                      } else if (value != '1234') {
-                                        return "Incorrect Password";
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  Visibility(
-                                    visible: _shareErrorMessage,
-                                    child: Text(
-                                      "Incorrect Password !",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  shareJSONController.clear();
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Cancel"),
-                              ),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    if (_shareFormKey.currentState!
-                                        .validate()) {
-                                      // shareJson(selectedFolder);
-                                      shareCsv(selectedFolder);
-                                      Navigator.pop(context);
-                                      // _showChangeUser();
-                                      shareJSONController.clear();
-                                    } else {
-                                      setState(() {
-                                        _shareErrorMessage = true;
-                                      });
-
-                                      shareJSONController.clear();
-                                    }
-                                  },
-                                  child: Text("Submit"))
-                            ],
-                          );
-                        });
-                  }),
-              ListTile(
-                  leading: Icon(Icons.delete),
-                  title: Text(
-                    'Clear Data',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Enter Password"),
-                            content: Form(
-                              key: _clearFormKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextFormField(
-                                    controller: _clearJSONController,
-                                    obscureText: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Please enter password";
-                                      } else if (value != '1234') {
-                                        return "Incorrect Password";
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  Visibility(
-                                    visible: _clearErrorMessage,
-                                    child: Text(
-                                      "Incorrect Password !",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  _clearJSONController.clear();
-                                  Navigator.pop(context);
-                                },
-                                child: Text("Cancel"),
-                              ),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    if (_clearFormKey.currentState!
-                                        .validate()) {
-                                      clearLogFile(selectedFolder);
-                                      Navigator.pop(context);
-                                      _clearJSONController.clear();
-                                    } else {
-                                      setState(() {
-                                        _clearErrorMessage = true;
-                                      });
-
-                                      _clearJSONController.clear();
-                                    }
-                                  },
-                                  child: Text("Submit"))
-                            ],
-                          );
-                        });
-                  }),
-            ],
+            ),
+            onTap: () {
+              _showPasswordDialog();
+            },
           ),
         ),
         body: SingleChildScrollView(
@@ -642,7 +461,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                             MediaQuery.of(context).copyWith(textScaleFactor: 1),
                         child: Text(
                           "Hello,",
-                          // textAlign: TextAlign.left,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 50,
@@ -657,7 +475,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                             MediaQuery.of(context).copyWith(textScaleFactor: 1),
                         child: Text(
                           user,
-                          // textAlign: TextAlign.left,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 60,
