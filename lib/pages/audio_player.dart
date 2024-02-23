@@ -47,6 +47,9 @@ Future<void> writeToLogFile(String? folderName, String csvRow) async {
     dir.create();
   }
   final file = File('${dir.path}/logs.csv');
+  if (!(await file.exists())) {
+    file.create();
+  }
 
   // Check if the file is empty to write the header
   if (await file.lengthSync() == 0) {
@@ -213,8 +216,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   Widget build(BuildContext context) {
     String user = selectedFolder ?? "Username";
 
-    
-
     Future<void> logSeekAction(Duration newPosition) async {
       final currentTime = DateTime.now();
       final audioDuration = _audioPlayer.duration ?? Duration.zero;
@@ -238,6 +239,85 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final TextEditingController firstController = TextEditingController();
     bool _firstErrorMessage = false;
 
+    void _selectionOptions(String task, String? userName) {
+      final _secondFormKey = GlobalKey<FormState>();
+      final TextEditingController secondController = TextEditingController();
+      bool _showError = false;
+      secondController.clear();
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Enter Password"),
+              content: Form(
+                  key: _secondFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        obscureText: true,
+                        controller: secondController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter password.";
+                          } else if (value != "pass") {
+                            return "Incorrect password.";
+                          }
+                          return null;
+                        },
+                      ),
+                      Visibility(
+                        visible: _showError,
+                        child: Text(
+                          "Incorrect Password.",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  )),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      secondController.clear();
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancel")),
+                ElevatedButton(
+                    onPressed: () {
+                      if (_secondFormKey.currentState!.validate()) {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        switch (task) {
+                          case "share":
+                            shareCsv(userName);
+                            break;
+                          case "delete":
+                            clearLogFile(userName);
+                            break;
+                          case "create":
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => CreateProfile()));
+                            break;
+                          default:
+                            print("Select options function called");
+                        }
+
+                        // call desired function
+                        print("second dialog box called");
+                        secondController.clear();
+                      } else {
+                        setState(() {
+                          _showError = true;
+                        });
+                        secondController.clear();
+                      }
+                    },
+                    child: Text("Submit"))
+              ],
+            );
+          });
+    }
+
     void _showSelectionDialog() {
       showDialog(
           context: context,
@@ -254,7 +334,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(top:10 ,bottom: 10,left: 20),
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 20),
                         child: Text(
                           "Profile Options....",
                           textAlign: TextAlign.left,
@@ -286,6 +367,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                             label: Text("")),
                         TextButton.icon(
                             onPressed: () {
+                              _selectionOptions("create", selectedFolder);
                               print("create profile pressed.");
                             },
                             icon: Column(
@@ -308,7 +390,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(top:10 ,bottom: 10,left: 20),
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 20),
                         child: Text(
                           "Data Options....",
                           textAlign: TextAlign.left,
@@ -322,6 +405,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                         TextButton.icon(
                             onPressed: () {
                               print("share profile pressed.");
+                              _selectionOptions("share" , selectedFolder);
                             },
                             icon: Column(
                               children: [
@@ -338,6 +422,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                             label: Text("")),
                         TextButton.icon(
                             onPressed: () {
+                              _selectionOptions("delete", selectedFolder);
                               print("Delete data pressed.");
                             },
                             icon: Column(
