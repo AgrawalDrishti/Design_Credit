@@ -284,35 +284,114 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     },
                     child: Text("Cancel")),
                 ElevatedButton(
-                    onPressed: () {
-                      if (_secondFormKey.currentState!.validate()) {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                        switch (task) {
-                          case "share":
-                            shareCsv(userName);
-                            break;
-                          case "delete":
-                            clearLogFile(userName);
-                            break;
-                          case "create":
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => CreateProfile()));
-                            break;
-                          default:
-                            print("Select options function called");
-                        }
-
-                        // call desired function
-                        print("second dialog box called");
-                        secondController.clear();
-                      } else {
-                        setState(() {
-                          _showError = true;
-                        });
-                        secondController.clear();
+                  onPressed: () {
+                    if (_secondFormKey.currentState!.validate()) {
+                      Navigator.pop(context); // Close the password dialog
+                      switch (task) {
+                        case "change":
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return ValueListenableBuilder<String?>(
+                                valueListenable: selectedUserNotifier,
+                                builder: (context, selectedUser, child) {
+                                  return FutureBuilder<List<String>>(
+                                    future: _folderNamesFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.done) {
+                                        if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        }
+                                        return AlertDialog(
+                                          title: Text('Select User'),
+                                          content: SingleChildScrollView(
+                                            child: ListBody(
+                                              children: snapshot.data!
+                                                  .map<Widget>((String value) {
+                                                return RadioListTile<String>(
+                                                  title: Text(value),
+                                                  value: value,
+                                                  groupValue:
+                                                      selectedUserNotifier
+                                                          .value,
+                                                  onChanged:
+                                                      (String? newValue) {
+                                                    setState(() {
+                                                      selectedUserNotifier
+                                                          .value = newValue;
+                                                    });
+                                                  },
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("Cancel"),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                print(selectedUser);
+                                                if (selectedUser != null) {
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AudioPlayerPage(
+                                                        selectedFolder:
+                                                            selectedUser,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              child: Text("Submit"),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return CircularProgressIndicator();
+                                      }
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                          break;
+                        case "share":
+                          shareCsv(userName);
+                          break;
+                        case "delete":
+                          clearLogFile(userName);
+                          break;
+                        case "create":
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => CreateProfile()),
+                          );
+                          break;
+                        default:
+                          print("Select options function called");
                       }
-                    },
-                    child: Text("Submit"))
+                      secondController.clear();
+                    } else {
+                      setState(() {
+                        _showError = true;
+                      });
+                      secondController.clear();
+                    }
+                  },
+                  child: Text("Submit"),
+                ),
               ],
             );
           });
@@ -348,6 +427,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       children: [
                         TextButton.icon(
                             onPressed: () {
+                              _selectionOptions("change", selectedFolder);
                               print("change profile pressed.");
                             },
                             icon: Column(
@@ -405,7 +485,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                         TextButton.icon(
                             onPressed: () {
                               print("share profile pressed.");
-                              _selectionOptions("share" , selectedFolder);
+                              _selectionOptions("share", selectedFolder);
                             },
                             icon: Column(
                               children: [
