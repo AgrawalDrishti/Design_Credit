@@ -374,6 +374,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                           clearLogFile(userName);
                           break;
                         case "create":
+                          Navigator.pop(context);
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                                 builder: (context) => CreateProfile()),
@@ -638,12 +639,15 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       child: MediaQuery(
                         data:
                             MediaQuery.of(context).copyWith(textScaleFactor: 1),
-                        child: Text(
-                          user,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 60,
-                              color: Color(0xff58c977)),
+                        child: Flexible(
+                          child: Text(
+                            user,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 60,
+                                color: Color(0xff58c977)),
+                          ),
                         ),
                       ),
                     ),

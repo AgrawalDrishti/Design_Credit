@@ -6,37 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:design_credit/pages/audio_player.dart';
 
-// Future<String> createFolder(String folderName, String name, String emailId , String gender, String fieldA) async {
-//   print("Entered Function");
-//  final dir = Directory((Platform.isAndroid
-//     ? await getExternalStorageDirectory()
-//     : await getApplicationSupportDirectory())!
-//     .path + '/$folderName');
-//  var status = await Permission.storage.status;
-//  if (!status.isGranted) {
-//   await Permission.storage.request();
-//  }
-//
-//   print(dir.path);
-//  if ((await dir.exists())) {
-//    print(dir.path);
-//   return dir.path;
-//  } else {
-//   dir.create();
-//
-//   final file = File('${dir.path}/profile.json');
-//   final profileData = {
-//     'name': name,
-//     'email': emailId,
-//     'gender': gender,
-//     'fieldA': fieldA,
-//   };
-//   file.writeAsStringSync(jsonEncode(profileData));
-//  return dir.path;
-//  }
-//
-// }
-
 Future<String> createFolder(
     String folderName, String name, String emailId, String gender, String fieldA) async {
   // 1. Check if we can get broad external storage access (Android 11+)
@@ -97,10 +66,6 @@ Future<bool> _manageExternalStoragePermission() async {
     return true;
   }
 }
-
-
-
-
 
 class CreateProfile extends StatefulWidget {
   const CreateProfile({super.key});
